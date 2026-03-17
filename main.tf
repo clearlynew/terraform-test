@@ -1,3 +1,16 @@
+terraform {
+  required_providers {
+    kubernetes = {
+      source  = "hashicorp/kubernetes"
+      version = "~> 2.0"
+    }
+  }
+}
+
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
 resource "kubernetes_deployment_v1" "nginx" {
   metadata {
     name = "nginx-deployment"
@@ -99,6 +112,24 @@ resource "kubernetes_deployment_v1" "mongodb" {
 }
 
 # MongoDB Service (ClusterIP so it's internal to the cluster)
+resource "kubernetes_service_v1" "mongodb_service" {
+  metadata {
+    name = "mongodb-service"
+  }
+
+  spec {
+    selector = {
+      app = "mongodb"
+    }
+
+    port {
+      port        = 27017
+      target_port = 27017
+    }
+
+    type = "ClusterIP"
+  }
+}
 resource "kubernetes_service_v1" "mongodb_service" {
   metadata {
     name = "mongodb-service"
