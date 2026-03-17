@@ -11,96 +11,65 @@ provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
+# --- NGINX DEPLOYMENT ---
 resource "kubernetes_deployment_v1" "nginx" {
   metadata {
     name = "nginx-deployment"
-    labels = {
-      app = "nginx"
-    }
+    labels = { app = "nginx" }
   }
-
   spec {
     replicas = 2
-
     selector {
-      match_labels = {
-        app = "nginx"
-      }
+      match_labels = { app = "nginx" }
     }
-
     template {
       metadata {
-        labels = {
-          app = "nginx"
-        }
+        labels = { app = "nginx" }
       }
-
       spec {
         container {
           image = "nginx:latest"
           name  = "nginx"
-
-          port {
-            container_port = 80
-          }
+          port { container_port = 80 }
         }
       }
     }
   }
 }
 
+# --- NGINX SERVICE ---
 resource "kubernetes_service_v1" "nginx_service" {
-  metadata {
-    name = "nginx-service"
-  }
-
+  metadata { name = "nginx-service" }
   spec {
-    selector = {
-      app = "nginx"
-    }
-
+    selector = { app = "nginx" }
     port {
       port        = 80
       target_port = 80
     }
-
     type = "NodePort"
   }
 }
-# MongoDB Deployment
+
+# --- MONGODB DEPLOYMENT ---
 resource "kubernetes_deployment_v1" "mongodb" {
   metadata {
     name = "mongodb-deployment"
-    labels = {
-      app = "mongodb"
-    }
+    labels = { app = "mongodb" }
   }
-
   spec {
     replicas = 1
     selector {
-      match_labels = {
-        app = "mongodb"
-      }
+      match_labels = { app = "mongodb" }
     }
-
     template {
       metadata {
-        labels = {
-          app = "mongodb"
-        }
+        labels = { app = "mongodb" }
       }
-
       spec {
         container {
           image = "mongo:latest"
           name  = "mongodb"
-
-          port {
-            container_port = 27017
-          }
-          
-          # Useful for testing: Set a basic env var
+          port { container_port = 27017 }
           env {
             name  = "MONGO_INITDB_DATABASE"
             value = "btechSuccessStories"
@@ -111,40 +80,15 @@ resource "kubernetes_deployment_v1" "mongodb" {
   }
 }
 
-# MongoDB Service (ClusterIP so it's internal to the cluster)
+# --- MONGODB SERVICE ---
 resource "kubernetes_service_v1" "mongodb_service" {
-  metadata {
-    name = "mongodb-service"
-  }
-
+  metadata { name = "mongodb-service" }
   spec {
-    selector = {
-      app = "mongodb"
-    }
-
+    selector = { app = "mongodb" }
     port {
       port        = 27017
       target_port = 27017
     }
-
-    type = "ClusterIP"
-  }
-}
-resource "kubernetes_service_v1" "mongodb_service" {
-  metadata {
-    name = "mongodb-service"
-  }
-
-  spec {
-    selector = {
-      app = "mongodb"
-    }
-
-    port {
-      port        = 27017
-      target_port = 27017
-    }
-
     type = "ClusterIP"
   }
 }
