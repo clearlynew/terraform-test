@@ -15,12 +15,6 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
-      # IMPORTANT: This step allows GitHub to talk to your K8s cluster
-      - name: Set up Kubeconfig
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBECONFIG }}" > ~/.kube/config
-
       - name: Terraform Init
         run: terraform init
 
