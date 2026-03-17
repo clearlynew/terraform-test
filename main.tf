@@ -1,0 +1,119 @@
+resource "kubernetes_deployment_v1" "nginx" {
+  metadata {
+    name = "nginx-deployment"
+    labels = {
+      app = "nginx"
+    }
+  }
+
+  spec {
+    replicas = 2
+
+    selector {
+      match_labels = {
+        app = "nginx"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "nginx"
+        }
+      }
+
+      spec {
+        container {
+          image = "nginx:latest"
+          name  = "nginx"
+
+          port {
+            container_port = 80
+          }
+        }
+      }
+    }
+  }
+}
+
+resource "kubernetes_service_v1" "nginx_service" {
+  metadata {
+    name = "nginx-service"
+  }
+
+  spec {
+    selector = {
+      app = "nginx"
+    }
+
+    port {
+      port        = 80
+      target_port = 80
+    }
+
+    type = "NodePort"
+  }
+}
+# MongoDB Deployment
+resource "kubernetes_deployment_v1" "mongodb" {
+  metadata {
+    name = "mongodb-deployment"
+    labels = {
+      app = "mongodb"
+    }
+  }
+
+  spec {
+    replicas = 1
+    selector {
+      match_labels = {
+        app = "mongodb"
+      }
+    }
+
+    template {
+      metadata {
+        labels = {
+          app = "mongodb"
+        }
+      }
+
+      spec {
+        container {
+          image = "mongo:latest"
+          name  = "mongodb"
+
+          port {
+            container_port = 27017
+          }
+          
+          # Useful for testing: Set a basic env var
+          env {
+            name  = "MONGO_INITDB_DATABASE"
+            value = "btechSuccessStories"
+          }
+        }
+      }
+    }
+  }
+}
+
+# MongoDB Service (ClusterIP so it's internal to the cluster)
+resource "kubernetes_service_v1" "mongodb_service" {
+  metadata {
+    name = "mongodb-service"
+  }
+
+  spec {
+    selector = {
+      app = "mongodb"
+    }
+
+    port {
+      port        = 27017
+      target_port = 27017
+    }
+
+    type = "ClusterIP"
+  }
+}
