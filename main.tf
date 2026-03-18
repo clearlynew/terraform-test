@@ -2,39 +2,46 @@ terraform {
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
-      version = "~> 3.0"
+      version = "~> 2.0"
     }
   }
 }
 
-# Provider (used only locally with Minikube)
+# Provider configuration - This will use your local kubeconfig by default
 provider "kubernetes" {
   config_path = "~/.kube/config"
 }
 
-# --- NGINX DEPLOYMENT ---
+# --- NGINX RESOURCES ---
+
 resource "kubernetes_deployment_v1" "nginx" {
   metadata {
     name = "nginx-deployment"
-    labels = { app = "nginx" }
+    labels = {
+      app = "nginx"
+    }
   }
 
   spec {
     replicas = 2
 
     selector {
-      match_labels = { app = "nginx" }
+      match_labels = {
+        app = "nginx"
+      }
     }
 
     template {
       metadata {
-        labels = { app = "nginx" }
+        labels = {
+          app = "nginx"
+        }
       }
 
       spec {
         container {
-          name  = "nginx"
           image = "nginx:latest"
+          name  = "nginx"
 
           port {
             container_port = 80
@@ -45,12 +52,15 @@ resource "kubernetes_deployment_v1" "nginx" {
   }
 }
 
-# --- NGINX SERVICE ---
 resource "kubernetes_service_v1" "nginx_service" {
-  metadata { name = "nginx-service" }
+  metadata {
+    name = "nginx-service"
+  }
 
   spec {
-    selector = { app = "nginx" }
+    selector = {
+      app = "nginx"
+    }
 
     port {
       port        = 80
@@ -61,34 +71,42 @@ resource "kubernetes_service_v1" "nginx_service" {
   }
 }
 
-# --- MONGODB DEPLOYMENT ---
+# --- MONGODB RESOURCES ---
+
 resource "kubernetes_deployment_v1" "mongodb" {
   metadata {
     name = "mongodb-deployment"
-    labels = { app = "mongodb" }
+    labels = {
+      app = "mongodb"
+    }
   }
 
   spec {
     replicas = 1
 
     selector {
-      match_labels = { app = "mongodb" }
+      match_labels = {
+        app = "mongodb"
+      }
     }
 
     template {
       metadata {
-        labels = { app = "mongodb" }
+        labels = {
+          app = "mongodb"
+        }
       }
 
       spec {
         container {
-          name  = "mongodb"
           image = "mongo:latest"
+          name  = "mongodb"
 
           port {
             container_port = 27017
           }
 
+          # Environment variable to initialize the success stories database
           env {
             name  = "MONGO_INITDB_DATABASE"
             value = "btechSuccessStories"
@@ -99,12 +117,15 @@ resource "kubernetes_deployment_v1" "mongodb" {
   }
 }
 
-# --- MONGODB SERVICE ---
 resource "kubernetes_service_v1" "mongodb_service" {
-  metadata { name = "mongodb-service" }
+  metadata {
+    name = "mongodb-service"
+  }
 
   spec {
-    selector = { app = "mongodb" }
+    selector = {
+      app = "mongodb"
+    }
 
     port {
       port        = 27017
